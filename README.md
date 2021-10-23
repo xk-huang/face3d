@@ -1,5 +1,8 @@
 # face3d: Python tools for processing 3D face
 
+Custom change by xiaoke-huang (hxk21@mails.tsinghua.edu.cn)
+Just play with `face3d`, get a lot out of it!
+
 ## Introduction
 
 This project implements some basic functions related to 3D faces.

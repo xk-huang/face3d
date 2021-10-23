@@ -1,0 +1,12 @@
+*.o
+*.so
+*.cpp
+
+/data
+/examples/Data/BFM/3ddfa
+/examples/Data/BFM/Out
+/examples/Data/BFM/raw
+/examples/Data/BFM/stn
+.vscode
+
+/examples/results

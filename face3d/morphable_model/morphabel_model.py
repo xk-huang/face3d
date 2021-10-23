@@ -37,7 +37,7 @@ class  MorphabelModel(object):
         self.ntri = self.model['tri'].shape[0]
         self.n_shape_para = self.model['shapePC'].shape[1]
         self.n_exp_para = self.model['expPC'].shape[1]
-        self.n_tex_para = self.model['texMU'].shape[1]
+        self.n_tex_para = self.model['texPC'].shape[1]
         
         self.kpt_ind = self.model['kpt_ind']
         self.triangles = self.model['tri']
