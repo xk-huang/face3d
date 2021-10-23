@@ -10,6 +10,8 @@ import skimage.transform
 from time import time
 import matplotlib.pyplot as plt
 
+import cv2
+
 sys.path.append('..')
 import face3d
 from face3d import mesh
@@ -29,7 +31,7 @@ vertices = C['vertices']; colors = C['colors']; triangles = C['full_triangles'];
 colors = colors/np.max(colors)
 # --modify vertices(transformation. change position of obj)
 s = 180/(np.max(vertices[:,1]) - np.min(vertices[:,1]))
-R = mesh.transform.angle2matrix([-10, -35, 20]) 
+R = mesh.transform.angle2matrix([0, 0, 0]) 
 t = [0, 0, 0]
 transformed_vertices = mesh.transform.similarity_transform(vertices, s, R, t)
 # --load uv coords
@@ -43,6 +45,7 @@ if not os.path.exists(save_folder):
 uv_h = uv_w = 256
 image_h = image_w = 256
 uv_coords = process_uv(uv_coords, uv_h, uv_w)
+print(uv_coords.shape)
 
 #-- 1. uv texture map
 attribute = colors
@@ -54,11 +57,15 @@ io.imsave('{}/uv_texture_map.jpg'.format(save_folder), np.squeeze(uv_texture_map
 # To some extent, when uv space is regular, position map is a subclass of geometry image(recording geometry information in regular image)
 # Notice: position map doesn't exit alone, it depends on the corresponding rendering(2d facical image). 
 # Attribute is the position with respect to image coords system.
-projected_vertices = transformed_vertices.copy() # use standard camera & orth projection here
-image_vertices = mesh.transform.to_image(projected_vertices, image_h, image_w) 
+
+# projected_vertices = transformed_vertices.copy() # use standard camera & orth projection here
+camera_vertices = mesh.transform.lookat_camera(transformed_vertices, [0, 0, 250])
+projected_vertices = mesh.transform.perspective_project(camera_vertices, 30)
+image_vertices = mesh.transform.to_image(projected_vertices, image_h, image_w, is_perspective=True) 
 position = image_vertices.copy()
-position[:,2] = position[:,2] - np.min(position[:,2]) # translate z 
+position[:,2] = position[:,2] - np.min(position[:,2]) # translate z, psudo color
 attribute = position
+
 # corresponding 2d facial image
 image = mesh.render.render_colors(image_vertices, triangles, colors, image_h, image_w, c=3)
 uv_position_map = mesh.render.render_colors(uv_coords, triangles, attribute, uv_h, uv_w, c=3)
@@ -68,8 +75,12 @@ io.imsave('{}/uv_position_map.jpg'.format(save_folder), (uv_position_map)/max(im
 
 # - verify
 # import cv2
-# uv_texture_map_rec = cv2.remap(image, uv_position_map[:,:,:2].astype(np.float32), None, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT,borderValue=(0))
-# io.imsave('{}/uv_texture_map_rec.jpg'.format(save_folder), np.squeeze(uv_texture_map_rec))
+uv_texture_map_rec = cv2.remap(
+    image, uv_position_map[:,:,:2].astype(np.float32), 
+    None, interpolation=cv2.INTER_LINEAR, 
+    borderMode=cv2.BORDER_CONSTANT,borderValue=(0)
+)
+io.imsave('{}/uv_texture_map_rec.jpg'.format(save_folder), np.concatenate([np.squeeze(uv_texture_map_rec), np.squeeze(uv_texture_map)], axis=1))
 
 #-- 3. general geometry image. attribute = vertices or transformed_vertices
 # TODO 

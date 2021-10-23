@@ -51,7 +51,7 @@ vertices = vertices - np.mean(vertices, 0)[np.newaxis, :]
 save_folder = 'results/transform'
 if not os.path.exists(save_folder):
     os.mkdir(save_folder)
-options = '-delay 10 -loop 0 -layers optimize' # gif options. need ImageMagick installed.
+options = '-delay 20 -loop 0 -layers optimize' # gif options. need ImageMagick installed.
 
 # ---- start
 obj = {}
@@ -71,7 +71,7 @@ for factor in np.arange(0.5, 1.2, 0.1):
 
 # angles
 for i in range(3):
-	for angle in np.arange(-50, 51, 10):
+	for angle in np.arange(0, 51, 10):
 		obj['s'] = scale_init
 		obj['angles'] = [0, 0, 0]
 		obj['angles'][i] = angle

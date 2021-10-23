@@ -72,15 +72,15 @@ rendering_tc = face3d.mesh.render.render_texture(image_vertices, triangles, text
 print('----------texture c++: ', time() - st)
 
 # plot
-# plt.subplot(2,2,1)
-# plt.imshow(rendering_cp)
-# plt.subplot(2,2,2)
-# plt.imshow(rendering_cc)
-# plt.subplot(2,2,3)
-# plt.imshow(rendering_tp)
-# plt.subplot(2,2,4)
-# plt.imshow(rendering_tc)
-# plt.show()
+plt.subplot(2,2,1)
+plt.imshow(rendering_cpr)
+plt.subplot(2,2,2)
+plt.imshow(rendering_cc)
+plt.subplot(2,2,3)
+plt.imshow(rendering_tp)
+plt.subplot(2,2,4)
+plt.imshow(rendering_tc)
+plt.show()
 
 
 ## --------------------------- write obj

@@ -24,7 +24,7 @@ colors = colors/np.max(colors)
 # scale. target size=180 for example
 s = 180/(np.max(vertices[:,1]) - np.min(vertices[:,1]))
 # rotate 30 degree for example
-R = mesh.transform.angle2matrix([0, 30, 0]) 
+R = mesh.transform.angle2matrix([0, 0, 0]) 
 # no translation. center of obj:[0,0]
 t = [0, 0, 0]
 transformed_vertices = mesh.transform.similarity_transform(vertices, s, R, t)
@@ -39,7 +39,7 @@ lit_colors = mesh.light.add_light(transformed_vertices, triangles, colors, light
 # ------------------------------ 4. modify vertices(projection. change position of camera)
 # -- transform object from world space to camera space(what the world is in the eye of observer). 
 # -- omit if using standard camera
-camera_vertices = mesh.transform.lookat_camera(transformed_vertices, eye = [0, 0, 200], at = np.array([0, 0, 0]), up = None)
+camera_vertices = mesh.transform.lookat_camera(transformed_vertices, eye = [0, 0, 200], at = np.array([0, 0, 0]), up = np.array([0,1,0]))
 # -- project object from 3d world space into 2d image plane. orthographic or perspective projection
 projected_vertices = mesh.transform.orthographic_project(camera_vertices)
 
@@ -51,13 +51,19 @@ image_vertices = mesh.transform.to_image(projected_vertices, h, w)
 # render 
 rendering =  mesh.render.render_colors(image_vertices, triangles, lit_colors, h, w)
 
+aspect_ratio = 0.5
+projected_vertices = mesh.transform.perspective_project(camera_vertices, 50, aspect_ratio)
+image_vertices = mesh.transform.to_image(projected_vertices, h, int(w * aspect_ratio), is_perspective=True)
+# render 
+rendering_persp =  mesh.render.render_colors(image_vertices, triangles, lit_colors, h, int(w * aspect_ratio))
+
 # ---- show rendering
 # plt.imshow(rendering)
 # plt.show()
 save_folder = 'results/pipeline'
 if not os.path.exists(save_folder):
     os.mkdir(save_folder)
-io.imsave('{}/rendering.jpg'.format(save_folder), rendering)
+io.imsave('{}/rendering.jpg'.format(save_folder), np.concatenate([rendering, rendering_persp], axis=1))
 
 # ---- show mesh
 # mesh.vis.plot_mesh(camera_vertices, triangles)

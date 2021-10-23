@@ -83,6 +83,6 @@ for i in range(fitted_sp.shape[0]):
 	fitted_image = mesh.render.render_colors(image_vertices, bfm.triangles, colors, h, w)
 	io.imsave('{}/show_{:0>2d}.jpg'.format(save_folder, i), fitted_image)
 
-options = '-delay 20 -loop 0 -layers optimize' # gif. need ImageMagick.
+options = '-delay 30 -loop 0 -layers optimize' # gif. need ImageMagick.
 subprocess.call('convert {} {}/show_*.jpg {}'.format(options, save_folder, save_folder + '/3dmm.gif'), shell=True)
 subprocess.call('rm {}/show_*.jpg'.format(save_folder), shell=True)

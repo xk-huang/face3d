@@ -13,6 +13,7 @@ sys.path.append('..')
 import face3d
 from face3d import mesh
 from face3d.morphable_model import MorphabelModel
+import cv2
 
 def process_uv(uv_coords, uv_h = 256, uv_w = 256):
     uv_coords[:,0] = uv_coords[:,0]*(uv_w - 1)
@@ -66,6 +67,7 @@ def run_posmap_300W_LP(bfm, image_path, mat_path, save_folder,  uv_h = 256, uv_w
     DST_PTS = np.array([[0, 0], [0, image_h - 1], [image_w - 1, 0]])
     tform = skimage.transform.estimate_transform('similarity', src_pts, DST_PTS)
     cropped_image = skimage.transform.warp(image, tform.inverse, output_shape=(image_h, image_w))
+    io.imsave('{}/{}'.format(save_folder, image_name.replace('.jpg', '_crop.jpg')), np.squeeze(cropped_image))
 
     # transform face position(image vertices) along with 2d facial image 
     position = image_vertices.copy()
@@ -77,15 +79,23 @@ def run_posmap_300W_LP(bfm, image_path, mat_path, save_folder,  uv_h = 256, uv_w
     # 4. uv position map: render position in uv space
     uv_position_map = mesh.render.render_colors(uv_coords, bfm.full_triangles, position, uv_h, uv_w, c = 3)
 
+    image_vertices = transformed_vertices - transformed_vertices.mean(0)
+    projected_image_vertices = mesh.transform.to_image(image_vertices, uv_h, uv_w)
+    render_map = mesh.render.render_colors(projected_image_vertices, bfm.full_triangles, bfm.generate_colors(bfm.get_tex_para()), uv_h, uv_w, c = 3)
+    render_pos_map = mesh.render.render_colors(projected_image_vertices, bfm.full_triangles, position, uv_h, uv_w, c = 3)
+    # from IPython.core.debugger import set_trace; set_trace()
+    
     # 5. save files
     io.imsave('{}/{}'.format(save_folder, image_name), np.squeeze(cropped_image))
     np.save('{}/{}'.format(save_folder, image_name.replace('jpg', 'npy')), uv_position_map)
     io.imsave('{}/{}'.format(save_folder, image_name.replace('.jpg', '_posmap.jpg')), (uv_position_map)/max(image_h, image_w)) # only for show
+    io.imsave('{}/{}'.format(save_folder, image_name.replace('.jpg', '_render.jpg')), (render_map)) # only for show
+    io.imsave('{}/{}'.format(save_folder, image_name.replace('.jpg', '_render_posmap.jpg')), (render_pos_map)) # only for show
 
     # --verify
-    # import cv2
-    # uv_texture_map_rec = cv2.remap(cropped_image, uv_position_map[:,:,:2].astype(np.float32), None, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT,borderValue=(0))
-    # io.imsave('{}/{}'.format(save_folder, image_name.replace('.jpg', '_tex.jpg')), np.squeeze(uv_texture_map_rec))
+    import cv2
+    uv_texture_map_rec = cv2.remap(cropped_image, uv_position_map[:,:,:2].astype(np.float32), None, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT,borderValue=(0))
+    io.imsave('{}/{}'.format(save_folder, image_name.replace('.jpg', '_tex.jpg')), np.squeeze(uv_texture_map_rec))
 
 
 if __name__ == '__main__':

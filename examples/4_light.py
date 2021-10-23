@@ -42,7 +42,7 @@ options = '-delay 12 -loop 0 -layers optimize' # gif. need ImageMagick.
 # ---- start
 # 1. fix light intensities. change light positions.
 # x axis: light from left to right
-light_intensities = np.array([[1, 1, 1]])
+light_intensities = np.array([[0.5, 0.5, 0.5]])
 for i,p in enumerate(range(-200, 201, 40)): 
 	light_positions = np.array([[p, 0, 300]])
 	image = light_test(vertices, light_positions, light_intensities) 
